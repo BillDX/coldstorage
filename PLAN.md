@@ -92,6 +92,6 @@ archive -- security -- lobby -- corridor -- breakroom -- substation -- generator
 - [ ] Step 2 parser
 - [ ] Step 3 data integrity
 - [x] Step 4 power chain
-- [ ] Step 5 ghost/backup/keycard
+- [x] Step 5 ghost/backup/keycard
 - [ ] Step 6 door/ending/engine/playthrough
 - [ ] Step 7 polish
