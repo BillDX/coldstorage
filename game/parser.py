@@ -65,7 +65,7 @@ TWO_WORD_VERBS = {
     "put on": "use",
 }
 
-SPLIT_ON = (" on ", " into ", " to ", " in ", " with ", " at ")
+SPLIT_ON = (" on ", " into ", " to ", " in ", " with ", " at ", " about ")
 
 
 @dataclass
@@ -123,6 +123,7 @@ def parse(raw: str) -> Command:
     canon = _resolve_verb(head)
     if canon is None:
         # Unknown verb: keep it raw so the game can pun on it.
+        rest = rest.removeprefix("at ") if rest else rest
         noun, noun2 = _split_noun2(rest) if rest else (None, None)
         return Command(verb=head, noun=noun, noun2=noun2)
 
@@ -130,6 +131,9 @@ def parse(raw: str) -> Command:
         if rest in DIRECTIONS:
             return Command(verb="go", noun=DIRECTIONS[rest])
         return Command(verb="go", noun=rest or None)
+
+    if canon in ("look", "examine") or (canon is not None):
+        rest = rest.removeprefix("at ") if rest else rest
 
     noun, noun2 = _split_noun2(rest) if rest else (None, None)
     if noun:

@@ -52,6 +52,7 @@ class GameState:
         self.gary_fed = False
         self.vending_tried = False
         self.sandwich_eaten = False
+        self.trophy_shakes = 0
 
         self.score = 0
         self.turn = 0
@@ -85,6 +86,9 @@ class GameState:
                 "(Light or power would help.)"
             )
         lines = [r.name, "", r.desc]
+        if self.room == "server" and self.ghost_peaceful:
+            lines.append("The cold is gone. Where Bernard stood there is a "
+                         "faint warm glow, and the racks hum in a major key.")
         visible = [
             d.ITEMS[i].name for i, loc in self.item_loc.items()
             if loc == self.room and not (i == "tape3" and self.tape3_in_trophy)
@@ -104,7 +108,7 @@ class GameState:
         "start": "_start", "pull": "_pull", "shake": "_shake",
         "score": "_score", "help": "_help", "quit": "_quit",
         "eat": "_eat", "drink": "_drink", "heat": "_heat",
-        "wait": "_wait", "open": "_open", "close": "_close",
+        "wait": "_wait", "open": "_open", "close": "_close", "ask": "_ask",
     }
 
     def apply(self, raw: str) -> str:
@@ -235,6 +239,12 @@ class GameState:
                 return self._plunger_fusebox()
             if (a, b) in (("fuse", "breaker"),):
                 return self._fuse_breaker()
+            if a in ("tape1", "tape2", "tape3") and b == "backupdrive":
+                return self._insert_tape(a)
+            if (a, b) in (("paperclip", "vcr"),):
+                return self._vcr_eject()
+            if b == "vending" or (a, b) in (("coin", "vending"),):
+                return self._vending()
             if a == "gascan" and b is None:
                 return "The gas can is full. This is, in a dead building, a small miracle."
             if a == "flashlight":
@@ -308,7 +318,102 @@ class GameState:
                "apology. Now the breaker can mean something."
 
     # ---------------------------------------------------------------- start
+    def _insert_tape(self, tape: str) -> str:
+        if self.room != "server":
+            return ("The backup drive is in the server room. It has three "
+                    "bays and a policy.")
+        if not self.breaker_on:
+            return ("The backup drive is dead. Three empty bays, no power, "
+                    "and the whole apparatus taking this personally. It will "
+                    "need building power first.")
+        if tape not in self.inventory:
+            return f"You don't have the {d.ITEMS[tape].name}."
+        if tape in self.backup_tapes:
+            return (f"That bay already has the {d.ITEMS[tape].name} in it. "
+                    "The drive is not a recycling bin.")
+        self.inventory.discard(tape)
+        self.backup_tapes.add(tape)
+        self.add_score(10)
+        if len(self.backup_tapes) == 1:
+            return ("The drive takes VOL. 1. The room holds its breath. The "
+                    "static resolves, for half a second, into a face. It is "
+                    "Bernard. It is not surprised.")
+        if len(self.backup_tapes) == 2:
+            return ("The drive takes VOL. 2. The temperature drops, then — "
+                    "slowly — rises. Bernard is listening. 'That's the one I "
+                    "regret,' he says. 'That's the one I'm proudest of. Same "
+                    "tape. Don't ask.'")
+        # the third tape: completion
+        self.backup_done = True
+        self.ghost_peaceful = True
+        self.add_score(20)
+        if not self.keycard_given:
+            self.keycard_given = True
+            self.inventory.add("keycard")
+        return (
+            "The drive takes VOL. 3. The three bays hum together, a chord "
+            "more than a sound. On the drive's screen, in steady hand-keyed "
+            "letters: DONE.\n"
+            "Bernard... is... warm. The cold leaves the room the way a debt "
+            "leaves a ledger. 'That's it,' he says. 'That's the one. You can "
+            "go, kid. The door code is my year.'\n"
+            "He reaches into himself and hands you a card: the MASTER "
+            "KEYCARD. It is cold in your hand and then, briefly, warm.\n\n"
+            "[OBJECTIVE COMPLETE: Complete Bernard's final backup. You now "
+            "carry the master keycard.]"
+        )
+
+    def _vcr_eject(self) -> str:
+        if self.room != "breakroom":
+            return ("The VCR is in the break room. It is playing nothing. It "
+                    "has always been playing nothing.")
+        if not self.is_lit():
+            return "It's too dark to fiddle with things."
+        if "tape1" not in self.item_loc:
+            return "The VCR is empty now. It is playing nothing, at ease."
+        if "paperclip" not in self.inventory:
+            return ("The tape is wedged past the door, and the eject button "
+                    "has been a rumor since 1987. It would need something "
+                    "thin, patient, and pointy.")
+        self.inventory.add("tape1")
+        del self.item_loc["tape1"]
+        self.add_score(10)
+        return ("You slide the paperclip through the mechanical release. The "
+                "door clicks. VOL. 1 comes out, and the VCR exhales like a "
+                "small animal that has been held down for forty years.")
+
+    def _vending(self) -> str:
+        if not self.breaker_on:
+            self.vending_tried = True
+            return ("You press the buttons. The vending machine ends in a "
+                    "sad sigh.")
+        if "coffee" in self.inventory:
+            return ("You already have the coffee. The machine is watching "
+                    "you with what you hope is pride.")
+        if "coin" in self.inventory:
+            self.inventory.discard("coin")
+            self.inventory.add("coffee")
+            self.add_score(5)
+            return ("You insert your 1986 coin. The machine accepts it with "
+                    "a rattle of old gears and a sound like a small "
+                    "resurrection. OUT: one coffee, BERNARD'S RECIPE.")
+        if "freecoffee" in self.seen:
+            return ("The machine has already given you its free coffee. It "
+                    "is now at a loss for miracles.")
+        self.seen.add("freecoffee")
+        self.inventory.add("coffee")
+        self.add_score(5)
+        return ("One button glows: FREE. BERNARD'S RECIPE. The machine "
+                "dispenses a coffee with the ceremony of a funeral home "
+                "pouring the last glass.")
+
     def _start(self, c) -> str:
+        if c.noun and self.resolve(c.noun) == "ghost":
+            return ("Starting the ghost is not in the runbook. He is, in "
+                    "fact, already up. He is always up. He has been up "
+                    "since 1987.")
+        if c.noun and self.resolve(c.noun) == "vending":
+            return self._vending()
         if c.noun and self.resolve(c.noun) == "generator":
             pass
         if self.room != "generator":
@@ -484,13 +589,52 @@ class GameState:
     def _shake(self, c) -> str:
         iid = self.resolve(c.noun)
         if iid == "trophy" and "trophy" in self.inventory:
-            return "The trophy rattles. Something inside rattles back, " \
-                   "eagerly, like it has been waiting for this exact gesture."
+            self.trophy_shakes += 1
+            if not self.tape3_in_trophy:
+                return "The trophy is empty now. It is just a trophy. It is " \
+                       "doing very well."
+            if self.trophy_shakes >= 2:
+                self.tape3_in_trophy = False
+                return ("You shake again, and a VHS tumbles out: BERNARD'S "
+                        "FINAL BACKUP, VOL. 3. He hid his last night shift "
+                        "inside a hardware-store trophy. Of course he did.")
+            return ("The trophy rattles. Something inside rattles back, "
+                    "eagerly, like it has been waiting for this exact "
+                    "gesture. (Perhaps it wants to come out.)")
         if iid is None:
             return f"You shake the {c.noun or 'air'}. The air is unmoved."
         return f"The {d.ITEMS[iid].name} does not rattle. It is being calm about this."
 
+    def _ask(self, c) -> str:
+        a = self.resolve(c.noun)
+        if a == "ghost":
+            topic = (c.noun2 or "").lower()
+            if any(w in topic for w in ("code", "password", "door", "number")):
+                if self.ghost_peaceful:
+                    return ("'The code? 1987. My year. You'd think I'd pick "
+                            "a password with more flair, but I was "
+                            "mid-outage.'")
+                return ("'The door? The door is a question with your name on "
+                        "it. Answer the rest first, kid.'")
+            if any(w in topic for w in ("tape", "backup", "regret", "where")):
+                return ("'Three tapes. I left them where I left my life: one "
+                        "where I laughed, one where I didn't, one in a "
+                        "trophy I didn't deserve.'")
+            if "who" in topic or topic == "":
+                return ("'Bernard Kowalski. Night shift, 1987 to whenever. I "
+                        "am the reason this building still has standards.'")
+            return "'Is that a question, or a ticket?'"
+        if a is None:
+            n = c.noun or "air"
+            return f"You ask the {n} a question. The {n} is not qualified to answer."
+        return f"The {d.ITEMS[a].name} does not take questions."
+
     def _ghost_look(self) -> str:
+        if self.ghost_peaceful:
+            return ("Bernard. No longer translucent — more like... present. "
+                    "The cold is gone, and he glows the faint warm gold of a "
+                    "successful backup. His posture is the same. His "
+                    "posture was always the same.")
         return ("Bernard. Translucent, short-sleeved dress shirt, posture "
                 "still corrected by four decades of habit. His left hand "
                 "taps the air at the rhythm of a keyboard that no longer "
