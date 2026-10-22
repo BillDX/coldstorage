@@ -108,7 +108,7 @@ def test_full_power_chain():
     s = to(g(), "breakroom")
     s.apply("take duct tape")  # needs light... flashlight first
     assert "ducttape" not in s.inventory  # it's dark
-    # get the light
+    # get the light and a screwdriver (the office holds the latter)
     s.apply("go west")        # corridor
     s.apply("go west")        # lobby
     s.apply("go west")        # security
@@ -116,6 +116,9 @@ def test_full_power_chain():
     assert "flashlight" in s.inventory
     s.apply("go east")        # lobby
     s.apply("go east")        # corridor
+    s.apply("go north")       # office
+    s.apply("take screwdriver")
+    s.apply("go south")       # corridor
     s.apply("go east")        # breakroom
     s.apply("take duct tape")
     assert "ducttape" in s.inventory
@@ -142,6 +145,7 @@ def test_full_power_chain():
     s.apply("go north")  # substation
     out = s.apply("pull breaker")
     assert not s.breaker_on, out  # no fuse yet
+    s.apply("use screwdriver on breaker")
     s.apply("use fuse on breaker")
     assert "fuse" not in s.inventory
     out = s.apply("pull breaker")
@@ -151,6 +155,7 @@ def test_full_power_chain():
 
 def test_power_lights_dark_rooms():
     s = GameState()
+    s.apply("take screwdriver")
     for c in ["s", "w", "w"]:  # security
         s.apply(c)
     s.apply("search counter")
@@ -167,6 +172,7 @@ def test_power_lights_dark_rooms():
     s.apply("use plunger on fuse box")
     s.apply("start generator")
     s.apply("go north")  # substation
+    s.apply("use screwdriver on breaker")
     s.apply("use fuse on breaker")
     s.apply("pull breaker")
     assert s.breaker_on

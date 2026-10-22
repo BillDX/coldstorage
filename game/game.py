@@ -48,10 +48,12 @@ class GameState:
         self.door_card_swiped = False
         self.door_open = False
         self.escaped = False
+        self.breaker_opened = False
 
         self.gary_fed = False
         self.vending_tried = False
         self.sandwich_eaten = False
+        self.consumed: set[str] = set()   # items eaten/drank/spent
         self.trophy_shakes = 0
 
         self.score = 0
@@ -108,18 +110,18 @@ class GameState:
         "start": "_start", "pull": "_pull", "shake": "_shake",
         "score": "_score", "help": "_help", "quit": "_quit",
         "eat": "_eat", "drink": "_drink", "heat": "_heat",
-        "wait": "_wait", "open": "_open", "close": "_close", "ask": "_ask",
+        "wait": "_wait", "open": "_open", "close": "_close", "ask": "_ask", "type": "_type_code",
     }
 
     def apply(self, raw: str) -> str:
         self.turn += 1
-        if self.escaped:
-            return ("You are outside, which is where people go. The door "
-                    "behind you is doing its one good thing: holding. "
-                    "(Type 'quit' to end the game.)")
         c = parse(raw)
         if c.verb is None:
             return "(Type 'help' for a list of commands.)"
+        if self.escaped and c.verb != "quit":
+            return ("You are outside, which is where people go. The door "
+                    "behind you is doing its one good thing: holding. "
+                    "(Type 'quit' to end the game.)")
         handler = self.HANDLERS.get(c.verb)
         if handler is None:
             return self._gag(c)
@@ -138,16 +140,42 @@ class GameState:
 
     def _blast_door_text(self) -> str:
         if self.door_open:
-            return ("You step through the blast door and into daylight. "
-                    "\n\n" + self._ending())
+            return self._escape()
         bits = ["The blast door does not move. Four inches of steel have "
                 "very good bones."]
         if not self.breaker_on:
             bits.append("The keypad and card reader are dark.")
+        elif not self.door_code_entered:
+            bits.append("The keypad is waiting for a number.")
+        elif not self.door_card_swiped:
+            bits.append("The card reader is waiting for a card.")
         return " ".join(bits)
 
-    def _ending(self) -> str:  # filled in by the door step; placeholder safe
-        return "You made it out."
+    def _escape(self) -> str:
+        self.escaped = True
+        self.add_score(50)
+        return ("The maglocks release with a sound like a large sigh, and "
+                "four inches of steel part on daylight that is startlingly, "
+                "almost rudely, normal.\n\n" + self._ending())
+
+    def _ending(self) -> str:
+        return (
+            "The door seals behind you, and for the first time since you "
+            "arrived, the building is silent in the good way: the quiet of "
+            "a place at rest.\n"
+            "On the door, half-faded: CONDEMNED. DC-87 'COLD STORAGE'. "
+            "OFFLINE SINCE NOV 1987.\n"
+            "Inside, the radio crackles once more: '...this is Doug, "
+            "reporting all quiet.' You say, to no one, 'Doug, we're clear. "
+            "You can clock out now.' A long static. Then, very faintly: "
+            "'Told you. All quiet.'\n"
+            "Through the glass, the server room: one pale figure, upright "
+            "at last, giving you a small wave. Behind him, the generator "
+            "hums its one honest note. On the step outside, a toaster-sized "
+            "rat sits keeping watch. You have never been more employed.\n\n"
+            f"FINAL SCORE: {self.score}   (turns: {self.turn})\n"
+            "THE END"
+        )
 
     def _look(self, c) -> str:
         if c.noun is None:
@@ -158,6 +186,7 @@ class GameState:
                     and self.item_loc["flashlight"] == "security"
                     and "flashlight" not in self.inventory):
                 self.inventory.add("flashlight")
+                del self.item_loc["flashlight"]
                 return ("You kneel and feel under the counter, fingers first, "
                         "dignity later. Cold metal. Yes. The flashlight. "
                         "Someone planned to come back, and you are that someone now.")
@@ -201,6 +230,9 @@ class GameState:
             return f"There is no {c.noun} here."
         if iid in self.inventory:
             return f"You already have the {d.ITEMS[iid].name}."
+        if iid == "fuse" and self.fuse_in_breaker and self.item_loc.get(iid) == self.room:
+            return ("You can't pull the main fuse. The building is running "
+                    "on it, and the building would like to keep doing that.")
         if iid == "ghost":
             return ("You reach for the ghost. Your hand goes through him "
                     "like a rumor. He is not amused, which is impressive, "
@@ -231,6 +263,8 @@ class GameState:
     def _use(self, c) -> str:
         a = self.resolve(c.noun)
         b = self.resolve(c.noun2) if c.noun2 else None
+        if b == "keypad" and c.noun and c.noun.isdigit():
+            return self._keypad(c.noun)
         if a and b:
             pair = (a, b)
             if (a, b) in (("ducttape", "hose"),):
@@ -239,6 +273,10 @@ class GameState:
                 return self._plunger_fusebox()
             if (a, b) in (("fuse", "breaker"),):
                 return self._fuse_breaker()
+            if (a, b) in (("screwdriver", "breaker"),):
+                return self._open_breaker()
+            if (a, b) in (("keycard", "cardreader"),):
+                return self._swipe()
             if a in ("tape1", "tape2", "tape3") and b == "backupdrive":
                 return self._insert_tape(a)
             if (a, b) in (("paperclip", "vcr"),):
@@ -306,6 +344,10 @@ class GameState:
         if self.room != "substation":
             return "The main breaker is in the substation. The fuse should " \
                    "follow it there."
+        if not self.breaker_opened:
+            return ("The breaker's housing is screwed shut. It has not been "
+                    "opened since 1987, and it intends to keep it that way. "
+                    "(A screwdriver would be the professional response.)")
         if self.fuse_in_breaker:
             return "The fuse is already seated. The socket is not interested " \
                    "in a second one."
@@ -313,6 +355,7 @@ class GameState:
             return "The breaker's socket is empty and personal about it. " \
                    "It wants a fuse."
         self.inventory.discard("fuse")
+        self.item_loc["fuse"] = "substation"
         self.fuse_in_breaker = True
         return "You seat the fuse into the empty socket. It fits like an " \
                "apology. Now the breaker can mean something."
@@ -392,6 +435,7 @@ class GameState:
                     "you with what you hope is pride.")
         if "coin" in self.inventory:
             self.inventory.discard("coin")
+            self.consumed.add("coin")
             self.inventory.add("coffee")
             self.add_score(5)
             return ("You insert your 1986 coin. The machine accepts it with "
@@ -549,6 +593,7 @@ class GameState:
         iid = self.resolve(c.noun)
         if iid == "sandwich" and "sandwich" in self.inventory:
             self.inventory.discard("sandwich")
+            self.consumed.add("sandwich")
             self.sandwich_eaten = True
             return ("The sandwich is from 1987. Your stomach files a formal "
                     "complaint, cites the label ('DO NOT FEED THE RATS'), "
@@ -560,6 +605,7 @@ class GameState:
     def _drink(self, c) -> str:
         if self.resolve(c.noun) == "coffee" and "coffee" in self.inventory:
             self.inventory.discard("coffee")
+            self.consumed.add("coffee")
             return ("It is the right temperature. You are not sure this is "
                     "allowed, anywhere, by anyone. You drink it anyway. It "
                     "was worth the forty years of waiting.")
@@ -629,6 +675,79 @@ class GameState:
             return f"You ask the {n} a question. The {n} is not qualified to answer."
         return f"The {d.ITEMS[a].name} does not take questions."
 
+    def _open_breaker(self) -> str:
+        if self.room != "substation":
+            return "The main breaker is in the substation. It is brooding " \
+                   "there, screws intact."
+        if self.breaker_opened:
+            return "The housing is already open. The empty socket stares " \
+                   "at you with professional patience."
+        if "screwdriver" not in self.inventory:
+            return "The housing is screwed shut, and your bare hands are " \
+                   "not the right tool. (You are, currently, the wrong tool.)"
+        self.breaker_opened = True
+        return "You unscrew the housing. It opens on a hinge that has been " \
+               "waiting forty years for exactly this sound. Inside: one " \
+               "empty socket."
+
+    def _keypad(self, code: str) -> str:
+        if self.room != "lobby":
+            return "The keypad is in the lobby, next to the blast door. It " \
+                   "is a long way from where your fingers are."
+        if not self.breaker_on:
+            return "The keypad is dead. Its display is a small black void " \
+                   "with opinions."
+        if code == d.DOOR_CODE:
+            if self.door_code_entered:
+                return "The keypad already holds 1987. It is warm with the " \
+                       "number, the way a phone is warm after a long call."
+            self.door_code_entered = True
+            self.add_score(10)
+            msg = ("The keypad accepts 1987. The display holds on the "
+                   "number, warm. One of two locks is now open.")
+            if self.door_card_swiped:
+                msg += " " + self._open_door()
+            return msg
+        return (f"The keypad accepts {code} and then, with great ceremony, "
+                "displays: NO. (The code is the original installation year. "
+                "You could perhaps find where that is written down.)")
+
+    def _swipe(self) -> str:
+        if self.room != "lobby":
+            return "The card reader is in the lobby. It is being judgmental " \
+                   "there."
+        if not self.breaker_on:
+            return "The card reader is dark. Its window is a small void with " \
+                   "a turnstile's patience."
+        if "keycard" not in self.inventory:
+            return "You don't have the master keycard. The reader is not " \
+                   "impressed by your ID, which predates the building."
+        if self.door_card_swiped:
+            return "The reader has already drunk the card and returned it, " \
+                   "with approval."
+        self.door_card_swiped = True
+        self.add_score(10)
+        msg = ("The reader drinks the card and returns it with a sound like "
+               "approval. One of two locks is now open.")
+        if self.door_code_entered:
+            msg += " " + self._open_door()
+        return msg
+
+    def _open_door(self) -> str:
+        self.door_open = True
+        self.add_score(20)
+        return ("The keypad and the reader both glow steady green. The "
+                "maglocks are released. All that is left is the door "
+                "itself. [OBJECTIVE COMPLETE: Unlock the blast door.]")
+
+    def _type_code(self, c) -> str:
+        if c.noun and c.noun.isdigit():
+            if self.room == "lobby":
+                return self._keypad(c.noun)
+            return "You type the number into the air. The air does not have " \
+                   "a keypad, and it is not your fault."
+        return "You type it. The building does not type back."
+
     def _ghost_look(self) -> str:
         if self.ghost_peaceful:
             return ("Bernard. No longer translucent — more like... present. "
@@ -648,6 +767,7 @@ class GameState:
             return "You offer Gary a sandwich you do not have. Gary, to his " \
                    "credit, asks for the sandwich to be produced."
         self.inventory.discard("sandwich")
+        self.consumed.add("sandwich")
         self.gary_fed = True
         self.add_score(5)
         return ("You break off a piece of 1987 turkey and hold it out. Gary "

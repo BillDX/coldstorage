@@ -4,6 +4,7 @@ from game.game import GameState
 
 def power_on(state: GameState) -> None:
     """The documented power chain, from the office."""
+    state.apply("take screwdriver")
     for c in ["s", "w", "w"]:            # security
         state.apply(c)
     state.apply("search counter")
@@ -19,6 +20,7 @@ def power_on(state: GameState) -> None:
     state.apply("use plunger on fuse box")
     state.apply("start generator")
     state.apply("go north")              # substation
+    state.apply("use screwdriver on breaker")
     state.apply("use fuse on breaker")
     state.apply("pull breaker")
     assert state.breaker_on
