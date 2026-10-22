@@ -13,9 +13,36 @@ import sys
 
 from .game import GameState
 
+PROMPT = "what now> "
+
+# Chunky 5-row glyphs for the title banner. Pure ASCII, five wide, one
+# column of air between letters. Deterministic, of course: same title,
+# same scar.
+_GLYPHS = {
+    "A": [".###.", "#...#", "#####", "#...#", "#...#"],
+    "C": [".####", "#....", "#....", "#....", ".####"],
+    "D": ["###..", "#..#.", "#..#.", "#..#.", "###.."],
+    "E": ["#####", "#....", "####.", "#....", "#####"],
+    "G": [".####", "#....", "#.###", "#..#.", ".####"],
+    "L": ["#....", "#....", "#....", "#....", "#####"],
+    "O": [".####", "#..#.", "#..#.", "#..#.", ".####"],
+    "R": ["###..", "#..#.", "###..", "#.#..", "#..#."],
+    "S": [".####", "#....", ".###.", "....#", "####."],
+    "T": ["#####", "..#..", "..#..", "..#..", "..#.."],
+    " ": ["     "],
+}
+
+
+def title_banner(text: str) -> str:
+    """Render a title in giant ASCII block letters (five rows tall)."""
+    cells = [_GLYPHS.get(ch.upper(), _GLYPHS[" "]) for ch in text]
+    rows = zip(*(c + ["     "] * (5 - len(c)) for c in cells))
+    return "\n".join(" ".join(row) for row in rows)
+
+
 INTRO = (
-    "COLD STORAGE\n"
-    "A Haunted Data Center Adventure\n"
+    title_banner("COLD STORAGE") + "\n\n"
+    "A HAUNTED DATA CENTER ADVENTURE\n"
     "© 1987, ∞ Spectral Software\n\n"
     "You are a junior sysadmin. A client bought an 'abandoned' data center\n"
     "off the internet and sent you to fix its servers. The guard let you in\n"
@@ -25,8 +52,6 @@ INTRO = (
     "Four things stand between you and the daylight. Type 'score' to see\n"
     "them, 'help' to see what your hands can do.\n"
 )
-
-PROMPT = "what now> "
 
 
 class _LiveBuffer(io.StringIO):
