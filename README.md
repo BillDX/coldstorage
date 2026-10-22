@@ -1,6 +1,6 @@
 # COLD STORAGE
 
-**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python.
+**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python entirely by local/sovereign AI on a Macbook M3.
 
 A client bought an abandoned data center off the internet and sent you to
 fix its servers. The blast door sealed behind you. The building has been
@@ -18,7 +18,7 @@ uv run python -m game
 
 ## Controls
 
-Classic Zork-style verbs:
+Some Sample Classic Zork-style verbs:
 
 | Command | Example |
 |---|---|
@@ -30,23 +30,24 @@ Classic Zork-style verbs:
 | Start / pull / shake / open | `start generator`, `pull breaker`, `shake trophy` |
 | Ask / feed / give | `ask ghost about the door code`, `feed gary` |
 | Status | `score`, `inventory`, `i`, `help`, `quit` |
+(This is by no means complete.  Experiment and enjoy.)
 
-## The four objectives
+## The four game objectives
 
-Every objective is required. `score` shows your progress.
+To escape the haunted data center you'll need to . `score` shows your progress.
 
 1. **Restore generator power** — the building is dark. Follow the runbook.
-2. **Complete Bernard's final backup** — three tapes, three rooms, one ghost
+2. **Complete Bernard's final backup** — for a ghost
    who has been holding his breath since 1987.
 3. **Acquire the master keycard** — Bernard has opinions about it.
-4. **Unlock the blast door** — it wants two things. It will tell you
-   approximately.
+4. **Unlock the blast door** — Freedom and sunlight beyond.
 
 You do not have to be a clever sysadmin. You have to be a *persistence*
 sysadmin.
 
 ## Design notes
 
+- **This was written for a workshop of local/sovereign AI.** This adventure was entirely written by a Qwen3.8 LLM that fit into 16GB of ram on a Macbook M3 and its human prompter, Bill.  Bill used a Pi coding harness, with some sandbox safety add-ons, and minimal agents.md skills.md to maximize available context and token throughput.   
 - **Red/green TDD throughout.** Every system was written as a failing test
   first, then made to pass. The crown jewel is
   `tests/test_playthrough.py`, which replays a full canonical solution
@@ -57,13 +58,13 @@ sysadmin.
   (the *latent* set) live in `game/data.py`. Rules live in
   `game/game.py`. Parsing lives in `game/parser.py`. The loop lives in
   `game/engine.py`.
-- **Humor is a feature, not a garnish.** The fluorescent light flickers
-  "like it is buffering." Gary the rat has union rights. Bernard will not
+- **Humor is a core feature, not a garnish.** The fluorescent light flickers
+  "like it is buffering." Gary the rat has union rights. Ghost-Bernard will not
   give up the keycard until the backup is done, because it is *his* final
   shift, and the dead are very bad at letting go of the punch card.
-- **The darkness is fair.** Dark rooms hide their items and block
+- **The darkness is fair.** Part of the LLM's test harness was making sure full-playthroughs were always achievable.  Dark rooms hide their items and block
   interactions, but they tell you they are dark, and light is always
-  reachable. No item is unreachable without a tool, and every tool is
+  reachable. No item is unreachable without a puzzle, state, or tool, and every tool is
   findable in a lit room.
 - **No random number generator.** The game is fully deterministic. Same
   input, same haunting.
@@ -86,4 +87,4 @@ the only ranking that matters.
 
 *Written by Bill McIntyre — GitHub: [BillDX](https://github.com/BillDX)*
 
-*© 1987, ∞ Spectral Software. All rights reserved, released, and haunted.*
+*© 2026, Atomocom LLC. All rights reserved, released, and haunted.*
