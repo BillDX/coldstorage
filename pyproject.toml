@@ -3,7 +3,7 @@ name = "coldstorage"
 version = "0.1.0"
 description = "COLD STORAGE: a haunted data center text adventure"
 authors = [
-    { name = "Bill McIntyre", email = "billm@atomo.com" }
+    { name = "Bill McIntyre" }
 ]
 requires-python = ">=3.12"
 dependencies = []

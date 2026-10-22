@@ -84,4 +84,6 @@ the only ranking that matters.
 
 ---
 
+*Written by Bill McIntyre — GitHub: [BillDX](https://github.com/BillDX)*
+
 *© 1987, ∞ Spectral Software. All rights reserved, released, and haunted.*
