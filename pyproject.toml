@@ -1,0 +1,22 @@
+[project]
+name = "coldstorage"
+version = "0.1.0"
+description = "COLD STORAGE: a haunted data center text adventure"
+authors = [
+    { name = "Bill McIntyre", email = "billm@atomo.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

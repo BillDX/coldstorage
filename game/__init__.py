@@ -1,0 +1,1 @@
+"""COLD STORAGE: a haunted data center text adventure."""
