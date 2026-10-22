@@ -80,13 +80,32 @@ class GameState:
         self.score += pts
 
     # ------------------------------------------------------------- rendering
+    DARK_TEXT = {
+        "security": ("It's pitch dark. The radio hums 'all quiet' in a "
+                     "voice that is not light."),
+        "archive": ("It's pitch dark. Forty thousand spines are somewhere "
+                    "in here, and they are all judging you."),
+        "breakroom": ("It's pitch dark. The vending machine's ghost-light is "
+                      "off. Gary's eyes are on, though, and you can feel "
+                      "them."),
+        "bathroom": ("It's pitch dark. The sink drips at a pace you have "
+                     "decided not to count."),
+        "substation": ("It's pitch dark. The breaker panel looms like a "
+                       "monolith in a horror movie with a power budget of "
+                       "zero."),
+        "generator": ("It's pitch dark. A six-figure generator is somewhere "
+                      "around you, and it is asleep."),
+    }
+
+    def _dark_text(self) -> str:
+        return self.DARK_TEXT.get(
+            self.room,
+            "It's pitch dark. (Light or power would help.)")
+
     def room_text(self) -> str:
         r = d.ROOMS[self.room]
         if not self.is_lit():
-            return (
-                "It's pitch dark. You are in a room you know by reputation. "
-                "(Light or power would help.)"
-            )
+            return self._dark_text()
         lines = [r.name, "", r.desc]
         if self.room == "server" and self.ghost_peaceful:
             lines.append("The cold is gone. Where Bernard stood there is a "

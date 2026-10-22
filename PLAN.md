@@ -94,4 +94,4 @@ archive -- security -- lobby -- corridor -- breakroom -- substation -- generator
 - [x] Step 4 power chain
 - [x] Step 5 ghost/backup/keycard
 - [x] Step 6 door/ending/engine/playthrough
-- [ ] Step 7 polish
+- [x] Step 7 polish
