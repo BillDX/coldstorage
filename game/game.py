@@ -128,6 +128,7 @@ class GameState:
         "take": "_take", "drop": "_drop", "use": "_use", "read": "_read",
         "start": "_start", "pull": "_pull", "shake": "_shake",
         "score": "_score", "help": "_help", "quit": "_quit",
+        "hint_quit": "_quit_hint",
         "eat": "_eat", "drink": "_drink", "heat": "_heat",
         "wait": "_wait", "open": "_open", "close": "_close", "ask": "_ask", "type": "_type_code",
     }
@@ -600,12 +601,19 @@ class GameState:
         )
 
     def _quit(self, c) -> str:
+        self._force_quit = True
         if self.escaped:
-            self._force_quit = True
             return "THE END"
-        return ("The blast door does not open out of spite. This is a "
-                "haunted game: there is no leaving until you earn it. "
-                "Type 'score' to see what still needs doing.")
+        return ("You set the terminal aside and let the blast door keep its "
+                "secrets for another day. COLD STORAGE is very good at "
+                f"waiting.\nFINAL SCORE: {self.score}   (turns: {self.turn})\n"
+                "THE END")
+
+    def _quit_hint(self, c) -> str:
+        return ("The blast door does not open out of spite. There is no "
+                "leaving this building until you earn it. (There *is*, "
+                "however, a way to stop playing, if that is what you want: "
+                "type 'quit'.)")
 
     # ------------------------------------------------------------- gags etc
     def _eat(self, c) -> str:

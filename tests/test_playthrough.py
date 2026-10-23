@@ -70,8 +70,10 @@ def test_stuck_player_gets_guidance():
     assert "commands" in out.lower()
 
 
-def test_quit_before_escape_is_refused():
+def test_quit_before_escape_ends_gracefully():
+    # spec changed: quit always ends the program (exit/leave only *suggest* it)
     s = GameState()
     out = s.apply("quit")
-    assert "THE END" not in out
-    assert not s.escaped
+    assert s._force_quit
+    assert "THE END" in out.upper()
+    assert not s.escaped  # you left, but you never got out

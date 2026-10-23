@@ -50,7 +50,8 @@ VERB_SYNONYMS = {
     "git": {"git"},
     "wait": {"wait", "w", "pause", "z"},
     "score": {"score", "points"},
-    "quit": {"quit", "q", "exit"},
+    "quit": {"quit", "q"},
+    "hint_quit": {"exit", "leave", "go away"},
     "help": {"help", "h", "?"},
     "ask": {"ask", "talk", "tell", "say"},
 }
