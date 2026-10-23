@@ -1,8 +1,9 @@
 # COLD STORAGE
 
 **A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python entirely by local/sovereign AI on a Macbook M3.
+Using Qwen3.8 27B and Pi as the coding harness.   
 
-A client bought an abandoned data center off the internet and sent you to
+An anonymous client bought an abandoned data center off the internet and hired you to
 fix its servers. The blast door sealed behind you. The building has been
 offline since the Great Outage of 1987. The night shift, apparently, was
 never relieved.
