@@ -1,8 +1,10 @@
 # COLD STORAGE
 
-**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python, written entirely by a local/sovereign AI on a MacBook Pro (M3).
+**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python,
+written entirely by a local/sovereign AI on a MacBook Pro (M3): Qwen3.8 27B as the
+model, pi as the coding harness.
 
-A client bought an abandoned data center off the internet and sent you to
+An anonymous client bought an abandoned data center off the internet and hired you to
 fix its servers. The blast door sealed behind you. The building has been
 offline since the Great Outage of 1987. The night shift, apparently, was
 never relieved.
@@ -15,7 +17,7 @@ COLD STORAGE was built for a workshop on **Local / Sovereign AI
 development and agentic coding**.
 
 It was created **entirely on-device**: a MacBook Pro (M3) — 16GB of RAM —
-running a local **Qwen3.8** model that fits inside it, steered by its
+running a local **Qwen3.8 27B** model that fits inside it, steered by its
 human prompter, Bill. Bill used the **pi** coding harness with a few
 sandbox safety add-ons and a minimal AGENTS.md / skills setup, to
 maximize available context and token throughput. No cloud APIs in the
