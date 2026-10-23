@@ -104,13 +104,11 @@ archive -- security -- lobby -- corridor -- breakroom -- substation -- generator
 - **Game is complete and shipped-ready.** 68 tests green (`uv run pytest -q`),
   deterministic, full playthrough validated by `tests/test_playthrough.py`.
   Play: `uv run python -m game`.
-- **Git:** all work committed on `main`; authors are BillDX + GitHub noreply
-  (964503+BillDX@users.noreply.github.com). Local `main` was 6 commits ahead
-  of `origin/main` at handoff (banner, quit semantics, README semantics,
-  two merges of README edits made via the GitHub web UI). Owner should run
-  `git pull --rebase origin main && git push -u origin main` from their own
-  terminal (this sandbox cannot read git/gh credentials and must not be
-  pointed at them).
+- **Git:** all game work is pushed to `origin/main`; authors are BillDX +
+  GitHub noreply (964503+BillDX@users.noreply.github.com). At handoff, local
+  `main` carries one extra commit (this PLAN.md update). Owner: `git push -u
+  origin main` from their own terminal — this sandbox cannot read git/gh
+  credentials and must not be pointed at them.
 - **Ongoing race to be aware of:** README.md is edited in three places
   (this repo, the GitHub web UI, and the agent). After any web-UI edit,
   fetch/merge before pushing, or pushes get rejected (happened twice).
