@@ -88,10 +88,35 @@ archive -- security -- lobby -- corridor -- breakroom -- substation -- generator
 ## Status
 
 - [x] Design locked
-- [ ] Step 1 scaffold
-- [ ] Step 2 parser
-- [ ] Step 3 data integrity
+- [x] Step 1 scaffold
+- [x] Step 2 parser
+- [x] Step 3 data integrity
 - [x] Step 4 power chain
 - [x] Step 5 ghost/backup/keycard
 - [x] Step 6 door/ending/engine/playthrough
 - [x] Step 7 polish
+- [x] Post-polish: giant ASCII title banner; quit always ends the game
+      (exit/leave only suggest quit); README rewritten for workshop context
+- [ ] Push to GitHub (sandbox cannot authenticate; owner must push)
+
+## Handoff (2026-10-23)
+
+- **Game is complete and shipped-ready.** 68 tests green (`uv run pytest -q`),
+  deterministic, full playthrough validated by `tests/test_playthrough.py`.
+  Play: `uv run python -m game`.
+- **Git:** all work committed on `main`; authors are BillDX + GitHub noreply
+  (964503+BillDX@users.noreply.github.com). Local `main` was 6 commits ahead
+  of `origin/main` at handoff (banner, quit semantics, README semantics,
+  two merges of README edits made via the GitHub web UI). Owner should run
+  `git pull --rebase origin main && git push -u origin main` from their own
+  terminal (this sandbox cannot read git/gh credentials and must not be
+  pointed at them).
+- **Ongoing race to be aware of:** README.md is edited in three places
+  (this repo, the GitHub web UI, and the agent). After any web-UI edit,
+  fetch/merge before pushing, or pushes get rejected (happened twice).
+- **Sandbox note:** the agent's shell cannot read `~/.config/gh` or prompt
+  for credentials ("operation not permitted" / "Device not configured").
+  That is intentional confinement, not a bug to fix.
+- **Ideas, not required:** per-room flavor in dark text is done; possible
+  future work — extra gags, a `look` that doesn't reprint the whole
+  description, or a second playable ending (e.g. let Gary out too).
