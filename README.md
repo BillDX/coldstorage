@@ -1,6 +1,6 @@
 # COLD STORAGE
 
-**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python.
+**A Haunted Data Center Adventure** — a standalone Infocom-style text game in Python, written entirely by a local/sovereign AI on a MacBook Pro (M3).
 
 A client bought an abandoned data center off the internet and sent you to
 fix its servers. The blast door sealed behind you. The building has been
@@ -14,11 +14,14 @@ Your job: do your job, survive the hauntings, and get out.
 COLD STORAGE was built for a workshop on **Local / Sovereign AI
 development and agentic coding**.
 
-It was created **entirely on-device**: a MacBook Pro (M3) running a local
-**Qwen3.8** model, driven by the **pi** agentic coding harness. No cloud
-APIs in the loop — the workshop point was that the whole thing (design,
-code, tests, debugging, even the jokes) was produced by a model running
-on the laptop, and the human's job was direction and taste.
+It was created **entirely on-device**: a MacBook Pro (M3) — 16GB of RAM —
+running a local **Qwen3.8** model that fits inside it, steered by its
+human prompter, Bill. Bill used the **pi** coding harness with a few
+sandbox safety add-ons and a minimal AGENTS.md / skills setup, to
+maximize available context and token throughput. No cloud APIs in the
+loop — the workshop point was that the whole thing (design, code, tests,
+debugging, even the jokes) was produced by a model running on the
+laptop, and the human's job was direction and taste.
 
 The process was strict **red/green TDD**: every system landed as a
 failing test first, then got made to pass — and the full game is
@@ -37,7 +40,7 @@ uv run python -m game
 
 ## Controls
 
-Classic Zork-style verbs:
+Some sample classic Zork-style verbs:
 
 | Command | Example |
 |---|---|
@@ -51,16 +54,18 @@ Classic Zork-style verbs:
 | Status | `score`, `inventory`, `i`, `help` |
 | Quit | `quit` — always ends the game. (`exit`/`leave` only suggest it.) |
 
-## The four objectives
+(This is by no means complete. Experiment and enjoy.)
 
-Every objective is required. `score` shows your progress.
+## The four game objectives
+
+To escape the haunted data center you'll need to complete all four.
+`score` shows your progress.
 
 1. **Restore generator power** — the building is dark. Follow the runbook.
 2. **Complete Bernard's final backup** — three tapes, three rooms, one
    ghost who has been holding his breath since 1987.
 3. **Acquire the master keycard** — Bernard has opinions about it.
-4. **Unlock the blast door** — it wants two things. It will tell you
-   approximately.
+4. **Unlock the blast door** — freedom and sunlight beyond.
 
 You do not have to be a clever sysadmin. You have to be a *persistence*
 sysadmin.
@@ -80,10 +85,11 @@ sysadmin.
   earned, and every item is in exactly one place at the end. That
   invariant caught real bugs the unit tests missed (items duplicated
   between room and inventory, consumed items vanishing from the world).
-- **The darkness is fair.** Dark rooms hide their items and block
-  interactions, but they tell you they're dark, and light is always
-  reachable. No item is unreachable without a tool, and every tool is
-  findable in a lit room.
+- **The darkness is fair.** Part of the test harness's job was making
+  sure full playthroughs were always achievable. Dark rooms hide their
+  items and block interactions, but they tell you they're dark, and light
+  is always reachable. No item is unreachable without a tool, and every
+  tool is findable in a lit room.
 - **Humor is a feature, not a garnish.** The fluorescent light flickers
   "like it is buffering." Gary the rat has union rights. Bernard will not
   give up the keycard until the backup is done, because it is *his* final
@@ -108,4 +114,4 @@ the only ranking that matters.
 *Written by Bill McIntyre — GitHub: [BillDX](https://github.com/BillDX)*
 *Built locally on an M3 with Qwen3.8 + pi. No clouds were used in the making of this haunting.*
 
-*© 1987, ∞ Spectral Software. All rights reserved, released, and haunted.*
+*© 2026, Atomocom LLC. All rights reserved, released, and haunted.*
