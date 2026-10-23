@@ -48,7 +48,8 @@ Classic Zork-style verbs:
 | Read / examine | `read runbook`, `read mainframe`, `examine trophy` |
 | Start / pull / shake / open | `start generator`, `pull breaker`, `shake trophy` |
 | Ask / feed / give | `ask ghost about the door code`, `feed gary` |
-| Status | `score`, `inventory`, `i`, `help`, `quit` |
+| Status | `score`, `inventory`, `i`, `help` |
+| Quit | `quit` — always ends the game. (`exit`/`leave` only suggest it.) |
 
 ## The four objectives
 
@@ -94,7 +95,7 @@ sysadmin.
 uv run pytest -q
 ```
 
-54 tests, all green — including the full automated playthrough.
+68 tests, all green — including the full automated playthrough.
 
 ## A note on the score
 
