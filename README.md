@@ -16,7 +16,7 @@ Your job: do your job, survive the hauntings, and get out.
 COLD STORAGE was built for a workshop on **Local / Sovereign AI
 development and agentic coding**.
 
-It was created **entirely on-device**: a MacBook Pro (M3) — 16GB of RAM —
+It was created **entirely on-device**: a MacBook Pro (M3) — 64GB of RAM —
 running a local **Qwen3.8 27B** model that fits inside it, steered by its
 human prompter, Bill. Bill used the **pi** coding harness with a few
 sandbox safety add-ons and a minimal AGENTS.md / skills setup, to
